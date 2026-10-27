@@ -4,6 +4,7 @@ import AMSLogger from "./AMSLogger";
 import AMSViewStatusResponse from "./AMSViewStatusResponse";
 import API from "./API";
 import { AMSError } from "./AMSError";
+import { createOperationError, extractErrorDetails } from "./AMSOperationError";
 import FileMetadata from "./FileMetadata";
 import InitConfig from "./InitConfig";
 import OmnichannelChatToken from "./OmnichannelChatToken";
@@ -81,7 +82,7 @@ class FramedlessClient {
                 ExceptionDetails: error instanceof Error ? error.message : String(error)
             });
 
-            throw new Error('skypeTokenAuth');
+            throw createOperationError('skypeTokenAuth', extractErrorDetails(error));
         }
     }
 
@@ -115,7 +116,7 @@ class FramedlessClient {
                 ExceptionDetails: error instanceof Error ? error.message : String(error)
             });
 
-            throw new Error('createObject');
+            throw createOperationError('createObject', extractErrorDetails(error));
         }
     }
 
@@ -151,7 +152,7 @@ class FramedlessClient {
                 ExceptionDetails: error instanceof Error ? error.message : String(error)
             });
 
-            throw new Error('uploadDocument');
+            throw createOperationError('uploadDocument', extractErrorDetails(error));
         }
     }
 
@@ -187,7 +188,7 @@ class FramedlessClient {
                 ExceptionDetails: error instanceof Error ? error.message : String(error)
             });
 
-            throw new Error('getViewStatus');
+            throw createOperationError('getViewStatus', extractErrorDetails(error));
         }
     }
 
@@ -223,7 +224,7 @@ class FramedlessClient {
                 ExceptionDetails: error instanceof Error ? error.message : String(error)
             });
 
-            throw new Error('getView');
+            throw createOperationError('getView', extractErrorDetails(error));
         }
     }
 

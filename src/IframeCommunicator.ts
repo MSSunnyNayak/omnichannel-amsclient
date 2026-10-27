@@ -1,6 +1,7 @@
 import AMSLogData from "./AMSLogData";
 import API from "./API";
 import { AMSError } from "./AMSError";
+import { extractErrorDetails } from "./AMSOperationError";
 import fetchClientId from "./utils/fetchClientId";
 import fetchDebugConfig from "./utils/fetchDebugConfig";
 import fetchTelemetryConfig from "./utils/fetchTelemetryConfig";
@@ -110,7 +111,7 @@ class IframeCommunicator {
 
                     this.postMessage(PostMessageEventType.Response, PostMessageEventName.SkypeTokenAuth, postMessageData, PostMessageEventStatus.Success);
                 } catch (error) {
-                    this.postMessage(PostMessageEventType.Response, PostMessageEventName.SkypeTokenAuth, {}, PostMessageEventStatus.Failure);
+                    this.postMessage(PostMessageEventType.Response, PostMessageEventName.SkypeTokenAuth, this.createFailureData(data, error), PostMessageEventStatus.Failure);
 
                     this.scenarioMarker.failScenario(PostMessageEventName.SkypeTokenAuth, {
                         AMSClientRuntimeId: data.runtimeId,
@@ -147,14 +148,7 @@ class IframeCommunicator {
 
                     this.postMessage(PostMessageEventType.Response, PostMessageEventName.CreateObject, postMessageData, PostMessageEventStatus.Success);
                 } catch (error) {
-                    const postMessageData = {
-                        requestId: data.requestId,
-                        eventType: PostMessageEventType.Response,
-                        eventName: data.eventName,
-                        eventStatus: PostMessageEventStatus.Failure
-                    };
-
-                    this.postMessage(PostMessageEventType.Response, PostMessageEventName.CreateObject, postMessageData, PostMessageEventStatus.Failure);
+                    this.postMessage(PostMessageEventType.Response, PostMessageEventName.CreateObject, this.createFailureData(data, error), PostMessageEventStatus.Failure);
 
                     this.scenarioMarker.failScenario(PostMessageEventName.CreateObject, {
                         AMSClientRuntimeId: data.runtimeId,
@@ -195,13 +189,7 @@ class IframeCommunicator {
 
                     this.postMessage(PostMessageEventType.Response, PostMessageEventName.UploadDocument, postMessageData, PostMessageEventStatus.Success);
                 } catch (error) {
-                    const postMessageData = {
-                        requestId: data.requestId,
-                        eventType: PostMessageEventType.Response,
-                        eventName: data.eventName,
-                        eventStatus: PostMessageEventStatus.Failure
-                    };
-                    this.postMessage(PostMessageEventType.Response, PostMessageEventName.UploadDocument, postMessageData, PostMessageEventStatus.Failure);
+                    this.postMessage(PostMessageEventType.Response, PostMessageEventName.UploadDocument, this.createFailureData(data, error), PostMessageEventStatus.Failure);
 
                     this.scenarioMarker.failScenario(PostMessageEventName.UploadDocument, {
                         AMSClientRuntimeId: data.runtimeId,
@@ -243,7 +231,7 @@ class IframeCommunicator {
 
                     this.postMessage(PostMessageEventType.Response, PostMessageEventName.GetViewStatus, postMessageData, PostMessageEventStatus.Success);
                 } catch (error) {
-                    this.postMessage(PostMessageEventType.Response, PostMessageEventName.GetViewStatus, {}, PostMessageEventStatus.Failure);
+                    this.postMessage(PostMessageEventType.Response, PostMessageEventName.GetViewStatus, this.createFailureData(data, error), PostMessageEventStatus.Failure);
 
                     this.scenarioMarker.failScenario(PostMessageEventName.GetViewStatus, {
                         AMSClientRuntimeId: data.runtimeId,
@@ -285,7 +273,7 @@ class IframeCommunicator {
 
                     this.postMessage(PostMessageEventType.Response, PostMessageEventName.GetView, postMessageData, PostMessageEventStatus.Success);
                 } catch (error) {
-                    this.postMessage(PostMessageEventType.Response, PostMessageEventName.GetView, {}, PostMessageEventStatus.Failure);
+                    this.postMessage(PostMessageEventType.Response, PostMessageEventName.GetView, this.createFailureData(data, error), PostMessageEventStatus.Failure);
 
                     this.scenarioMarker.failScenario(PostMessageEventName.GetView, {
                         AMSClientRuntimeId: data.runtimeId,
@@ -299,6 +287,16 @@ class IframeCommunicator {
                 }
             }
         }
+    }
+
+    private createFailureData(data: any, error: unknown): PostMessageRequestData {  // eslint-disable-line @typescript-eslint/no-explicit-any
+        return {
+            requestId: data.requestId,
+            eventType: PostMessageEventType.Response,
+            eventName: data.eventName,
+            eventStatus: PostMessageEventStatus.Failure,
+            error: extractErrorDetails(error)
+        };
     }
 
     private sendTelemetry(logLevel: LogLevel, logData: AMSLogData): void {
