@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 
 - `getViewStatus` and `getView` now check the HTTP status. A failed `getView` no longer returns the error body as the file content.
 - In framed mode, failed `getViewStatus`, `getView` and `skypeTokenAuth` requests no longer hang: the iframe now includes the request id in failure replies, and `getViewStatus`/`getView` reject instead of resolving.
-- `instanceof AMSError` now works in the ES5 build, so the original status and request URL are no longer lost when an error is rethrown.
+- `instanceof AMSError` now works in the ES5 build, so the original status and request URL are no longer lost when an error is rethrown. The `RequestPath` telemetry field is now populated, with object ids and query strings redacted.
 
 ## [0.2.0] - 2026-08-12
 
