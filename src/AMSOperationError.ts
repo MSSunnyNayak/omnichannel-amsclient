@@ -1,9 +1,11 @@
 import { AMSError } from "./AMSError";
+import sanitizeRequestPath from "./utils/sanitizeRequestPath";
 
 /**
  * Error thrown by FramedClient and FramedlessClient operations.
  * `message` is the operation name (for example 'createObject') to stay compatible with earlier versions.
  * `status` is the HTTP status code returned by AMS, when one was received.
+ * `requestUrl` has object ids, query strings and fragments removed so it is safe to log.
  */
 export interface AMSOperationError extends Error {
     status?: number;
@@ -22,7 +24,7 @@ export const extractErrorDetails = (error: unknown): AMSOperationErrorDetails =>
     };
 
     if (error instanceof AMSError) {
-        details.requestUrl = error.requestUrl;
+        details.requestUrl = sanitizeRequestPath(error.requestUrl);
         if (typeof error.status === 'number') {
             details.status = error.status;
         }
@@ -39,7 +41,8 @@ export const createOperationError = (operation: string, details?: AMSOperationEr
     }
 
     if (details?.requestUrl) {
-        operationError.requestUrl = details.requestUrl;
+        // Sanitized again because framed details can come from a different iframe build.
+        operationError.requestUrl = sanitizeRequestPath(details.requestUrl);
     }
 
     return operationError;
