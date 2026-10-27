@@ -9,6 +9,7 @@ import { AMSOperationErrorDetails } from "./AMSOperationError";
 
 interface PostMessageRequestData {
     requestId?: string;
+    replyOnFailure?: boolean;
     id?: string;
     file?: File | AMSFileInfo;
     chatToken?: OmnichannelChatToken;

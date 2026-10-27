@@ -263,6 +263,7 @@ class FramedClient {
             requestId,
             eventType,
             eventName,
+            replyOnFailure: true,
             ...data
         }, this.baseUrl);
     }

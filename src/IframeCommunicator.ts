@@ -291,6 +291,12 @@ class IframeCommunicator {
     }
 
     private createFailureData(data: any, error: unknown): PostMessageRequestData {  // eslint-disable-line @typescript-eslint/no-explicit-any
+        // Legacy parents resolve view replies without checking eventStatus; keep those failures uncorrelated.
+        if (data.replyOnFailure !== true
+            && (data.eventName === PostMessageEventName.GetViewStatus || data.eventName === PostMessageEventName.GetView)) {
+            return {};
+        }
+
         return {
             requestId: data.requestId,
             eventType: PostMessageEventType.Response,

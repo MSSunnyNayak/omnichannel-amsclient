@@ -93,6 +93,10 @@ describe('FramedClient', () => {
         client.postMessage(PostMessageEventType.None, PostMessageEventName.SkypeTokenAuth, {}, () => {}, () => {});
 
         expect((client as any).targetWindow.postMessage).toHaveBeenCalledTimes(1);
+        expect((client as any).targetWindow.postMessage).toHaveBeenCalledWith(
+            expect.objectContaining({ replyOnFailure: true }),
+            expect.any(String)
+        );
     });
 
     it('FramedClient.dispose() should clean up', async () => {
@@ -148,7 +152,7 @@ describe('FramedClient', () => {
             expect((client as any).requestCallbacks).toEqual({});
         });
 
-        it.each(operations)('%s failure from an older iframe without error details should still reject', async (operation, eventName) => {
+        it.each(operations.slice(0, 2))('%s failure from an older iframe without error details should still reject', async (operation, eventName) => {
             const client = new FramedClient();
             const reject = jest.fn();
             (client as any).requestCallbacks = { requestId: { resolve: jest.fn(), reject } };
@@ -157,6 +161,19 @@ describe('FramedClient', () => {
 
             expect(reject.mock.calls[0][0]).toMatchObject({ message: operation });
             expect(reject.mock.calls[0][0].status).toBeUndefined();
+        });
+
+        it.each(operations.slice(2))('%s failure from an older iframe without requestId cannot settle the request', async (_operation, eventName) => {
+            const client = new FramedClient();
+            const resolve = jest.fn();
+            const reject = jest.fn();
+            (client as any).requestCallbacks = { requestId: { resolve, reject } };
+
+            await respond(client, eventName, { eventStatus: PostMessageEventStatus.Failure, requestId: undefined });
+
+            expect(resolve).not.toHaveBeenCalled();
+            expect(reject).not.toHaveBeenCalled();
+            expect((client as any).requestCallbacks).toHaveProperty('requestId');
         });
 
         it('skypeTokenAuth failure should still resolve', async () => {
